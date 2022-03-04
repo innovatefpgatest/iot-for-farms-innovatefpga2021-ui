@@ -1,16 +1,37 @@
-import React, {useState} from 'react';
-import {Layout, Menu} from 'antd';
+import React, {useState, useEffect} from 'react'
+import {Layout, Menu} from 'antd'
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
   UserOutlined,
-} from '@ant-design/icons';
+  ApartmentOutlined,
+  DatabaseOutlined,
+  UnorderedListOutlined,
+} from '@ant-design/icons'
+import {Link, useLocation} from 'react-router-dom'
 import './index.less'
+import {useSelector} from "react-redux";
 
 const {Header, Sider, Content} = Layout;
 
-const SiderMenu = ({username = '', children}) => {
+const SiderMenu = ({children, history}) => {
+  const location = useLocation()
+
   const [collapsed, setCollapsed] = useState(false)
+  const [key, setKey] = useState(
+    location.pathname == '/slave-nodes' || location.pathname == '/login'
+      ? '/'
+      : location.pathname
+  )
+
+  const authentication = useSelector(state => state.authentication)
+  const {username} = authentication
+
+  useEffect(() => {
+    setKey(location.pathname == '/slave-nodes' || location.pathname == '/login'
+      ? '/'
+      : location.pathname)
+  }, [location])
 
   const toggle = () => {
     setCollapsed(!collapsed)
@@ -22,9 +43,22 @@ const SiderMenu = ({username = '', children}) => {
         <div className={`username ${collapsed ? 'small' : ''}`}>
           {username}
         </div>
-        <Menu theme="dark" mode="inline" defaultSelectedKeys={['about-us']}>
-          <Menu.Item key="about-us" icon={<UserOutlined/>}>
-            About Us
+        <Menu
+          theme="dark"
+          mode="inline"
+          selectedKeys={[key]}
+        >
+          <Menu.Item key="/" icon={<ApartmentOutlined/>}>
+            <Link to="/">Nodes Management</Link>
+          </Menu.Item>
+          <Menu.Item key="/data" icon={<DatabaseOutlined/>}>
+            <Link to="/data">Data Management</Link>
+          </Menu.Item>
+          <Menu.Item key="/commands" icon={<UnorderedListOutlined/>}>
+            <Link to="/commands">Commands Management</Link>
+          </Menu.Item>
+          <Menu.Item key="/about" icon={<UserOutlined/>}>
+            <Link to="/about">About Us</Link>
           </Menu.Item>
         </Menu>
       </Sider>

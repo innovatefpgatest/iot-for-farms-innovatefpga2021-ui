@@ -1,10 +1,13 @@
-import { configureStore } from '@reduxjs/toolkit'
+import {configureStore, combineReducers} from '@reduxjs/toolkit'
+import authentication from './authentication'
+import listMasterNodes from './nodesManagement/listMasterNodes'
 
 const store = configureStore({
-  reducer: {},
-  devTools: process.env.REACT_APP_ENV !== 'production',
-  middleware: (getDefaultMiddleware) => {
-    return getDefaultMiddleware()
+  reducer: {
+    authentication: authentication,
+    nodesManagement: combineReducers({
+      listMasterNodes,
+    }),
   },
 })
 
