@@ -1,4 +1,4 @@
-import {Form, Input, Button} from 'antd';
+import {Form, Input, Button, message} from 'antd';
 import React, {useState, useEffect} from 'react';
 import {useSelector, useDispatch} from "react-redux";
 import {useNavigate} from "react-router-dom";
@@ -28,6 +28,10 @@ const LogIn = () => {
           dispatch(login({username: values.username, token: res.data.access}))
           localStorage.setItem("iotForFarmsUsername", values.username)
           localStorage.setItem("iotForFarmsToken", res.data.access)
+          setLoading(false)
+        })
+        .catch(err => {
+          message.error(err.response.data.detail)
           setLoading(false)
         })
     }

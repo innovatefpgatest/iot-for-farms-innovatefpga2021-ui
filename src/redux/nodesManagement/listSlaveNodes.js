@@ -7,31 +7,31 @@ const initialState = {
   error: null
 }
 
-export const listMasterNodes = createSlice({
-  name: 'listMasterNodes',
+export const listSlaveNodes = createSlice({
+  name: 'listSlaveNodes',
   initialState,
   reducers: {
-    getListMasterNodesStart: (state) => {
+    getListSlaveNodesStart: (state) => {
       state.loading = true
       state.data = null
       state.code = null
       state.error = null
     },
-    getListMasterNodesFinish: (state, action) => {
+    getListSlaveNodesFinish: (state, action) => {
       const {data, code} = action.payload
       state.loading = false
       state.data = data
       state.code = code
       state.error = null
     },
-    getListMasterNodesError: (state, action) => {
+    getListSlaveNodesError: (state, action) => {
       const {code, error} = action.payload
       state.loading = false
       state.data = null
       state.code = code
       state.error = error
     },
-    getListMasterNodesReset: (state) => {
+    getListSlaveNodesReset: (state) => {
       state.loading = false
       state.data = null
       state.code = null
@@ -41,6 +41,6 @@ export const listMasterNodes = createSlice({
 })
 
 // Action creators are generated for each case reducer function
-export const {getListMasterNodesStart, getListMasterNodesFinish, getListMasterNodesError, getListMasterNodesReset} = listMasterNodes.actions
+export const {getListSlaveNodesStart, getListSlaveNodesFinish, getListSlaveNodesError, getListSlaveNodesReset} = listSlaveNodes.actions
 
-export default listMasterNodes.reducer
+export default listSlaveNodes.reducer

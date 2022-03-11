@@ -37,7 +37,7 @@ const App = () => {
               }
             />
             <Route
-              path="/slave-nodes"
+              path="/slave-nodes/:master_id"
               element={
                 <Suspense fallback={<Loading/>}>
                   <SlaveNodesManagement/>

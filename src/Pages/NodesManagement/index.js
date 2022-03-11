@@ -1,17 +1,20 @@
 import React, {useEffect} from 'react';
 import './index.less';
-import {Typography, Table} from 'antd';
+import {Typography, Table, message} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {login} from '../../redux/authentication'
 import {
   getListMasterNodesStart,
   getListMasterNodesFinish,
-  getListMasterNodesError
+  getListMasterNodesError,
+  getListMasterNodesReset
 } from '../../redux/nodesManagement/listMasterNodes'
+import {logout} from "../../redux/authentication"
 import axios from "axios";
-import {API_CODE_FAILURE, API_CODE_SUCCESS} from "../../redux/errorCode";
+import {API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode";
 import moment from 'moment'
+import {Link} from "react-router-dom"
 
 const {Title} = Typography
 
@@ -24,6 +27,7 @@ const columns = [
     title: 'Physical ID',
     dataIndex: 'physical_id',
     key: 'physical_id',
+    render: (text) => <Link to={`/slave-nodes/${text}`}>{text}</Link>
   }, {
     title: 'Longtitude',
     dataIndex: 'longtitude',
@@ -52,7 +56,7 @@ const NodesManagement = () => {
   const authentication = useSelector(state => state.authentication)
   const {token} = authentication
   const {listMasterNodes} = useSelector(state => state.nodesManagement)
-  const {data, loading, error} = listMasterNodes ?? {}
+  const {data, loading, error, code} = listMasterNodes ?? {}
   const {data: listNodes} = data ?? {}
 
   useEffect(() => {
@@ -69,6 +73,20 @@ const NodesManagement = () => {
     }
   }, [token])
 
+  useEffect(() => {
+    if (!!code && code != API_CODE_SUCCESS) {
+      message.error(error)
+      dispatch(getListMasterNodesReset())
+
+      if (code == INVALID_TOKEN) {
+        localStorage.removeItem("iotForFarmsUsername")
+        localStorage.removeItem("iotForFarmsToken")
+        dispatch(logout())
+        navigate('/login')
+      }
+    }
+  }, [code])
+
   const getListMasterNodes = () => {
     dispatch(getListMasterNodesStart())
     const config = {
@@ -82,16 +100,23 @@ const NodesManagement = () => {
         }))
       })
       .catch(err => {
+        const errorDetails = err.response.data
         dispatch(getListMasterNodesError({
-          code: API_CODE_FAILURE,
-          error: err.toString()
+          code: errorDetails.code,
+          error: errorDetails.detail
         }))
       })
   }
 
   return (<>
     <Title>Nodes Management</Title>
-    <Table columns={columns} dataSource={listNodes} loading={loading} rowKey="id"/>
+    <Table
+      columns={columns}
+      dataSource={listNodes}
+      loading={loading}
+      rowKey="id"
+      pagination={{total: data?.total || 0, size: "small"}}
+    />
   </>)
 }
 

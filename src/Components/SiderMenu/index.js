@@ -10,16 +10,17 @@ import {
 } from '@ant-design/icons'
 import {Link, useLocation} from 'react-router-dom'
 import './index.less'
-import {useSelector} from "react-redux";
+import {useSelector} from "react-redux"
 
 const {Header, Sider, Content} = Layout;
 
-const SiderMenu = ({children, history}) => {
+const SiderMenu = ({children}) => {
   const location = useLocation()
 
   const [collapsed, setCollapsed] = useState(false)
   const [key, setKey] = useState(
-    location.pathname == '/slave-nodes' || location.pathname == '/login'
+    location.pathname.split('/')[1] == 'slave-nodes'
+    || location.pathname == '/login'
       ? '/'
       : location.pathname
   )
@@ -28,14 +29,15 @@ const SiderMenu = ({children, history}) => {
   const {username} = authentication
 
   useEffect(() => {
-    setKey(location.pathname == '/slave-nodes' || location.pathname == '/login'
+    setKey(location.pathname.split('/')[1] == 'slave-nodes'
+    || location.pathname == '/login'
       ? '/'
       : location.pathname)
   }, [location])
 
   const toggle = () => {
     setCollapsed(!collapsed)
-  };
+  }
 
   return (
     <Layout>

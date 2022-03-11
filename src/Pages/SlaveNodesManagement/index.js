@@ -1,11 +1,20 @@
 import React, {useEffect} from 'react';
 import './index.less';
-import {Typography, Table} from 'antd';
+import {Typography, Table, message} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
-import {useNavigate} from "react-router-dom";
-import {login} from "../../redux/authentication";
+import {useNavigate, useParams} from "react-router-dom";
+import {login, logout} from "../../redux/authentication";
+import moment from "moment"
+import {
+  getListSlaveNodesError,
+  getListSlaveNodesFinish,
+  getListSlaveNodesStart,
+  getListSlaveNodesReset,
+} from "../../redux/nodesManagement/listSlaveNodes";
+import axios from "axios";
+import {API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode"
 
-const {Title} = Typography
+const {Title, Text} = Typography
 
 const columns = [
   {
@@ -24,19 +33,25 @@ const columns = [
     title: 'Created at',
     dataIndex: 'created_at',
     key: 'created_at',
+    render: (text) => moment(text).format("DD/MM/YYYY HH:mm:ss"),
   }, {
     title: 'Updated at',
     dataIndex: 'updated_at',
     key: 'updated_at',
+    render: (text) => moment(text).format("DD/MM/YYYY HH:mm:ss"),
   }
 ]
 
 const SlaveNodesManagement = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const {master_id: masterId} = useParams()
 
   const authentication = useSelector(state => state.authentication)
   const {token} = authentication
+  const {listSlaveNodes} = useSelector(state => state.nodesManagement)
+  const {data, loading, error, code} = listSlaveNodes ?? {}
+  const {data: listNodes} = data ?? {}
 
   useEffect(() => {
     if (!token) {
@@ -47,12 +62,56 @@ const SlaveNodesManagement = () => {
       } else {
         dispatch(login({username, token}))
       }
+    } else {
+      getListSlaveNodes()
     }
   }, [token])
 
+  useEffect(() => {
+    if (!!code && code != API_CODE_SUCCESS) {
+      message.error(error)
+      dispatch(getListSlaveNodesReset())
+
+      if (code == INVALID_TOKEN) {
+        localStorage.removeItem("iotForFarmsUsername")
+        localStorage.removeItem("iotForFarmsToken")
+        dispatch(logout())
+        navigate('/login')
+      }
+    }
+  }, [code])
+
+  const getListSlaveNodes = () => {
+    dispatch(getListSlaveNodesStart())
+    const config = {
+      headers: {Authorization: `Bearer ${localStorage.getItem("iotForFarmsToken")}`}
+    }
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/slave-node/?master_id=${masterId}`, config)
+      .then(res => {
+        dispatch(getListSlaveNodesFinish({
+          data: res.data,
+          code: API_CODE_SUCCESS
+        }))
+      })
+      .catch(err => {
+        const errorDetails = err.response.data
+        dispatch(getListSlaveNodesError({
+          code: errorDetails.code,
+          error: errorDetails.detail
+        }))
+      })
+  }
+
   return (<>
     <Title>Slave Nodes</Title>
-    <Table columns={columns}/>
+    <Text>Master node ID: {masterId}</Text>
+    <Table
+      columns={columns}
+      dataSource={listNodes}
+      loading={loading}
+      rowKey="id"
+      pagination={{total: data?.total || 0, size: "small"}}
+    />
   </>)
 }
 
