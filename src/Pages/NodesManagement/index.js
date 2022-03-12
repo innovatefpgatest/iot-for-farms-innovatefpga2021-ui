@@ -12,7 +12,7 @@ import {
 } from '../../redux/nodesManagement/listMasterNodes'
 import {logout} from "../../redux/authentication"
 import axios from "axios";
-import {API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode";
+import {API_CODE_FAILURE, API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode";
 import moment from 'moment'
 import {Link} from "react-router-dom"
 
@@ -100,11 +100,25 @@ const NodesManagement = () => {
         }))
       })
       .catch(err => {
-        const errorDetails = err.response.data
-        dispatch(getListMasterNodesError({
-          code: errorDetails.code,
-          error: errorDetails.detail
-        }))
+        if (!!err?.response) {
+          const errorDetails = err.response.data
+          if (!!errorDetails?.detail) {
+            dispatch(getListMasterNodesError({
+              code: errorDetails.code,
+              error: errorDetails.detail
+            }))
+          } else {
+            dispatch(getListMasterNodesError({
+              code: err.response.status,
+              error: err.response.statusText
+            }))
+          }
+        } else {
+          dispatch(getListMasterNodesError({
+            code: API_CODE_FAILURE,
+            error: err.toString()
+          }))
+        }
       })
   }
 

@@ -12,7 +12,7 @@ import {
   getListSlaveNodesReset,
 } from "../../redux/nodesManagement/listSlaveNodes";
 import axios from "axios";
-import {API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode"
+import {API_CODE_FAILURE, API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode"
 
 const {Title, Text} = Typography
 
@@ -95,11 +95,25 @@ const SlaveNodesManagement = () => {
         }))
       })
       .catch(err => {
-        const errorDetails = err.response.data
-        dispatch(getListSlaveNodesError({
-          code: errorDetails.code,
-          error: errorDetails.detail
-        }))
+        if (!!err?.response) {
+          const errorDetails = err.response.data
+          if (!!errorDetails?.detail) {
+            dispatch(getListSlaveNodesError({
+              code: errorDetails.code,
+              error: errorDetails.detail
+            }))
+          } else {
+            dispatch(getListSlaveNodesError({
+              code: err.response.status,
+              error: err.response.statusText
+            }))
+          }
+        } else {
+          dispatch(getListSlaveNodesError({
+            code: API_CODE_FAILURE,
+            error: err.toString()
+          }))
+        }
       })
   }
 
