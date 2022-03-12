@@ -1,36 +1,16 @@
 import React, {useEffect} from 'react';
 import './index.less';
-import {Typography, Tabs, Table} from 'antd';
+import {Typography, Tabs} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {login} from "../../redux/authentication";
+import LightData from './LightData';
+import SoilMoistureData from './SoilMoistureData';
+import TemperatureData from "./TemperatureData";
+import VocData from "./VocData";
 
 const {Title} = Typography
 const {TabPane} = Tabs
-
-const columns = [
-  {
-    title: 'ID',
-    dataIndex: 'id',
-    key: 'id',
-  }, {
-    title: 'Node ID',
-    dataIndex: 'node_id',
-    key: 'node_id',
-  }, {
-    title: 'Value',
-    dataIndex: 'value',
-    key: 'value',
-  }, {
-    title: 'Created at',
-    dataIndex: 'created_at',
-    key: 'created_at',
-  }, {
-    title: 'Updated at',
-    dataIndex: 'updated_at',
-    key: 'updated_at',
-  }
-]
 
 const DataManagement = () => {
   const dispatch = useDispatch()
@@ -55,16 +35,16 @@ const DataManagement = () => {
     <Title>Data Management</Title>
     <Tabs defaultActiveKey="light">
       <TabPane tab="Light data" key="light">
-        <Table columns={columns}/>
+        <LightData/>
       </TabPane>
       <TabPane tab="Soil moisture data" key="soil">
-        <Table columns={columns}/>
+        <SoilMoistureData/>
       </TabPane>
       <TabPane tab="Temperature data" key="temperature">
-        <Table columns={columns}/>
+        <TemperatureData/>
       </TabPane>
       <TabPane tab="VOC data" key="voc">
-        <Table columns={columns}/>
+        <VocData/>
       </TabPane>
     </Tabs>
   </>)
