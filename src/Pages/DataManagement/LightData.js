@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import './index.less';
 import {message, Table} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
@@ -48,8 +48,10 @@ const LightData = () => {
   const {data, loading, error, code} = listLightData ?? {}
   const {data: listData} = data ?? {}
 
+  const [page, setPage] = useState(1)
+
   useEffect(() => {
-    getListLightData()
+    getListLightData(1)
   }, [])
 
   useEffect(() => {
@@ -66,12 +68,13 @@ const LightData = () => {
     }
   }, [code])
 
-  const getListLightData = () => {
+  const getListLightData = (currentPage) => {
+    setPage(currentPage)
     dispatch(getListLightDataStart())
     const config = {
       headers: {Authorization: `Bearer ${localStorage.getItem("iotForFarmsToken")}`}
     }
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/light/`, config)
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/light/?page=${currentPage}`, config)
       .then(res => {
         dispatch(getListLightDataFinish({
           data: res.data,
@@ -106,7 +109,13 @@ const LightData = () => {
     dataSource={listData}
     loading={loading}
     rowKey="id"
-    pagination={{total: data?.total || 0, size: "small"}}
+    pagination={{
+      total: data?.total || 0,
+      pageSize: data?.page_size || 10,
+      current: page,
+      size: "small",
+      onChange: (currentPage) => getListLightData(currentPage),
+    }}
   />)
 }
 

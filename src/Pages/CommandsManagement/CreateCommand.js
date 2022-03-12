@@ -8,7 +8,7 @@ import {
   createCommandReset,
 } from "../../redux/commandsManagement/createCommand";
 import axios from "axios";
-import {API_CODE_FAILURE, API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode";
+import {API_CODE_FAILURE, API_CODE_SUCCESS, INVALID_TOKEN, API_BAD_REQUEST} from "../../redux/errorCode";
 import {useDispatch, useSelector} from "react-redux";
 import {logout} from "../../redux/authentication";
 import {useNavigate} from "react-router-dom";
@@ -72,9 +72,14 @@ const CreateCommand = () => {
               error: errorDetails.detail
             }))
           } else {
+            let message = err.response.statusText
+            const statusCode = err.response.status
+            if (statusCode == API_BAD_REQUEST) {
+              message = Object.values(err.response.data)[0][0]
+            }
             dispatch(createCommandError({
-              code: err.response.status,
-              error: err.response.statusText
+              code: statusCode,
+              error: message
             }))
           }
         } else {

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import './index.less';
 import {message, Table} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
@@ -48,8 +48,10 @@ const VocData = () => {
   const {data, loading, error, code} = listVocData ?? {}
   const {data: listData} = data ?? {}
 
+  const [page, setPage] = useState(1)
+
   useEffect(() => {
-    getListVocData()
+    getListVocData(1)
   }, [])
 
   useEffect(() => {
@@ -66,12 +68,13 @@ const VocData = () => {
     }
   }, [code])
 
-  const getListVocData = () => {
+  const getListVocData = (currentPage) => {
+    setPage(currentPage)
     dispatch(getListVocDataStart())
     const config = {
       headers: {Authorization: `Bearer ${localStorage.getItem("iotForFarmsToken")}`}
     }
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/voc/`, config)
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/voc/?page=${currentPage}`, config)
       .then(res => {
         dispatch(getListVocDataFinish({
           data: res.data,
@@ -106,7 +109,13 @@ const VocData = () => {
     dataSource={listData}
     loading={loading}
     rowKey="id"
-    pagination={{total: data?.total || 0, size: "small"}}
+    pagination={{
+      total: data?.total || 0,
+      pageSize: data?.page_size || 10,
+      current: page,
+      size: "small",
+      onChange: (currentPage) => getListVocData(currentPage),
+    }}
   />)
 }
 

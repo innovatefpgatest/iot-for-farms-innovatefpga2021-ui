@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import './index.less';
 import {Typography, Table, message, Tag, Divider} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
@@ -67,6 +67,8 @@ const CommandsManagement = () => {
   const {createCommand} = useSelector(state => state.commandsManagement)
   const {code: createCode} = createCommand ?? {}
 
+  const [page, setPage] = useState(1)
+
   useEffect(() => {
     if (!token) {
       const username = localStorage.getItem("iotForFarmsUsername")
@@ -77,7 +79,7 @@ const CommandsManagement = () => {
         dispatch(login({username, token}))
       }
     } else {
-      getListCommands()
+      getListCommands(1)
     }
   }, [token])
 
@@ -97,16 +99,17 @@ const CommandsManagement = () => {
 
   useEffect(() => {
     if (createCode == API_CODE_SUCCESS) {
-      getListCommands()
+      getListCommands(1)
     }
   }, [createCode])
 
-  const getListCommands = () => {
+  const getListCommands = (currentPage) => {
+    setPage(currentPage)
     dispatch(getListCommandsStart())
     const config = {
       headers: {Authorization: `Bearer ${token}`}
     }
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/command/`, config)
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/command/?page=${currentPage}`, config)
       .then(res => {
         dispatch(getListCommandsFinish({
           data: res.data,
@@ -146,7 +149,13 @@ const CommandsManagement = () => {
       dataSource={listData}
       loading={loading}
       rowKey="id"
-      pagination={{total: data?.total || 0, size: "small"}}
+      pagination={{
+        total: data?.total || 0,
+        pageSize: data?.page_size || 10,
+        current: page,
+        size: "small",
+        onChange: (currentPage) => getListCommands(currentPage),
+      }}
     />
   </>)
 }

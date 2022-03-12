@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import './index.less';
 import {message, Table} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
@@ -48,8 +48,10 @@ const SoilMoistureData = () => {
   const {data, loading, error, code} = listSoilMoistureData ?? {}
   const {data: listData} = data ?? {}
 
+  const [page, setPage] = useState(1)
+
   useEffect(() => {
-    getListSoilMoistureData()
+    getListSoilMoistureData(1)
   }, [])
 
   useEffect(() => {
@@ -66,12 +68,13 @@ const SoilMoistureData = () => {
     }
   }, [code])
 
-  const getListSoilMoistureData = () => {
+  const getListSoilMoistureData = (currentPage) => {
+    setPage(currentPage)
     dispatch(getListSoilMoistureDataStart())
     const config = {
       headers: {Authorization: `Bearer ${localStorage.getItem("iotForFarmsToken")}`}
     }
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/soil-moisture/`, config)
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/soil-moisture/?page=${currentPage}`, config)
       .then(res => {
         dispatch(getListSoilMoistureDataFinish({
           data: res.data,
@@ -106,7 +109,13 @@ const SoilMoistureData = () => {
     dataSource={listData}
     loading={loading}
     rowKey="id"
-    pagination={{total: data?.total || 0, size: "small"}}
+    pagination={{
+      total: data?.total || 0,
+      pageSize: data?.page_size || 10,
+      current: page,
+      size: "small",
+      onChange: (currentPage) => getListSoilMoistureData(currentPage),
+    }}
   />)
 }
 

@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import './index.less';
 import {Typography, Table, message} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
@@ -59,6 +59,8 @@ const NodesManagement = () => {
   const {data, loading, error, code} = listMasterNodes ?? {}
   const {data: listNodes} = data ?? {}
 
+  const [page, setPage] = useState(1)
+
   useEffect(() => {
     if (!token) {
       const username = localStorage.getItem("iotForFarmsUsername")
@@ -69,7 +71,7 @@ const NodesManagement = () => {
         dispatch(login({username, token}))
       }
     } else {
-      getListMasterNodes()
+      getListMasterNodes(1)
     }
   }, [token])
 
@@ -87,12 +89,13 @@ const NodesManagement = () => {
     }
   }, [code])
 
-  const getListMasterNodes = () => {
+  const getListMasterNodes = (currentPage) => {
+    setPage(currentPage)
     dispatch(getListMasterNodesStart())
     const config = {
       headers: {Authorization: `Bearer ${token}`}
     }
-    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/master-node/`, config)
+    axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/master-node/?page=${currentPage}`, config)
       .then(res => {
         dispatch(getListMasterNodesFinish({
           data: res.data,
@@ -129,7 +132,13 @@ const NodesManagement = () => {
       dataSource={listNodes}
       loading={loading}
       rowKey="id"
-      pagination={{total: data?.total || 0, size: "small"}}
+      pagination={{
+        total: data?.total || 0,
+        pageSize: data?.page_size || 10,
+        current: page,
+        size: "small",
+        onChange: (currentPage) => getListMasterNodes(currentPage),
+      }}
     />
   </>)
 }

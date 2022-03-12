@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import './index.less';
 import {Typography, Table, message} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
@@ -53,6 +53,8 @@ const SlaveNodesManagement = () => {
   const {data, loading, error, code} = listSlaveNodes ?? {}
   const {data: listNodes} = data ?? {}
 
+  const [page, setPage] = useState(1)
+
   useEffect(() => {
     if (!token) {
       const username = localStorage.getItem("iotForFarmsUsername")
@@ -63,7 +65,7 @@ const SlaveNodesManagement = () => {
         dispatch(login({username, token}))
       }
     } else {
-      getListSlaveNodes()
+      getListSlaveNodes(1)
     }
   }, [token])
 
@@ -81,11 +83,12 @@ const SlaveNodesManagement = () => {
     }
   }, [code])
 
-  const getListSlaveNodes = () => {
+  const getListSlaveNodes = (currentPage) => {
+    setPage(currentPage)
     dispatch(getListSlaveNodesStart())
     const config = {
       headers: {Authorization: `Bearer ${token}`},
-      params: {master_id: masterId}
+      params: {master_id: masterId, page: currentPage},
     }
     axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/slave-node/`, config)
       .then(res => {
@@ -125,7 +128,13 @@ const SlaveNodesManagement = () => {
       dataSource={listNodes}
       loading={loading}
       rowKey="id"
-      pagination={{total: data?.total || 0, size: "small"}}
+      pagination={{
+        total: data?.total || 0,
+        pageSize: data?.page_size || 10,
+        current: page,
+        size: "small",
+        onChange: (currentPage) => getListSlaveNodes(currentPage),
+      }}
     />
   </>)
 }
