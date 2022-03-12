@@ -6,6 +6,7 @@ import listLightData from './dataManagement/listLightData'
 import listSoilMoistureData from './dataManagement/listSoilMoistureData'
 import listVocData from './dataManagement/listVocData'
 import listTemperatureData from './dataManagement/listTemperatureData'
+import listCommands from './commandsManagement/listCommands'
 
 const store = configureStore({
   reducer: {
@@ -19,7 +20,10 @@ const store = configureStore({
       listSoilMoistureData,
       listVocData,
       listTemperatureData,
-    })
+    }),
+    commandsManagement: combineReducers({
+      listCommands,
+    }),
   },
 })
 
