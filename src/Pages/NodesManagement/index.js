@@ -90,7 +90,7 @@ const NodesManagement = () => {
   const getListMasterNodes = () => {
     dispatch(getListMasterNodesStart())
     const config = {
-      headers: {Authorization: `Bearer ${localStorage.getItem("iotForFarmsToken")}`}
+      headers: {Authorization: `Bearer ${token}`}
     }
     axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/master-node/`, config)
       .then(res => {

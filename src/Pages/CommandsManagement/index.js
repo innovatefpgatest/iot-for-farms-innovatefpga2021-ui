@@ -1,6 +1,6 @@
 import React, {useEffect} from 'react';
 import './index.less';
-import {Typography, Table, message, Tag} from 'antd';
+import {Typography, Table, message, Tag, Divider} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useNavigate} from "react-router-dom";
 import {login, logout} from "../../redux/authentication";
@@ -14,6 +14,7 @@ import {
 } from "../../redux/commandsManagement/listCommands";
 import axios from "axios";
 import {command_statuses, command_types} from "./constants";
+import CreateCommand from './CreateCommand';
 
 const {Title} = Typography
 
@@ -63,6 +64,8 @@ const CommandsManagement = () => {
   const {listCommands} = useSelector(state => state.commandsManagement)
   const {data, loading, error, code} = listCommands ?? {}
   const {data: listData} = data ?? {}
+  const {createCommand} = useSelector(state => state.commandsManagement)
+  const {code: createCode} = createCommand ?? {}
 
   useEffect(() => {
     if (!token) {
@@ -92,10 +95,16 @@ const CommandsManagement = () => {
     }
   }, [code])
 
+  useEffect(() => {
+    if (createCode == API_CODE_SUCCESS) {
+      getListCommands()
+    }
+  }, [createCode])
+
   const getListCommands = () => {
     dispatch(getListCommandsStart())
     const config = {
-      headers: {Authorization: `Bearer ${localStorage.getItem("iotForFarmsToken")}`}
+      headers: {Authorization: `Bearer ${token}`}
     }
     axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/command/`, config)
       .then(res => {
@@ -129,6 +138,9 @@ const CommandsManagement = () => {
 
   return (<>
     <Title>Commands Management</Title>
+    <Divider orientation="left">Push Command</Divider>
+    <CreateCommand/>
+    <Divider/>
     <Table
       columns={columns}
       dataSource={listData}

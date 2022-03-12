@@ -84,7 +84,7 @@ const SlaveNodesManagement = () => {
   const getListSlaveNodes = () => {
     dispatch(getListSlaveNodesStart())
     const config = {
-      headers: {Authorization: `Bearer ${localStorage.getItem("iotForFarmsToken")}`},
+      headers: {Authorization: `Bearer ${token}`},
       params: {master_id: masterId}
     }
     axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/slave-node/`, config)
