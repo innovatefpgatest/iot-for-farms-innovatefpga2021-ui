@@ -3,7 +3,6 @@ import {Layout, Menu} from 'antd'
 import {
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  UserOutlined,
   ApartmentOutlined,
   DatabaseOutlined,
   UnorderedListOutlined,
@@ -58,9 +57,6 @@ const SiderMenu = ({children}) => {
           </Menu.Item>
           <Menu.Item key="/commands" icon={<UnorderedListOutlined/>}>
             <Link to="/commands">Commands Management</Link>
-          </Menu.Item>
-          <Menu.Item key="/about" icon={<UserOutlined/>}>
-            <Link to="/about">About Us</Link>
           </Menu.Item>
         </Menu>
       </Sider>

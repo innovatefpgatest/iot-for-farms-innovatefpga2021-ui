@@ -60,14 +60,6 @@ const App = () => {
                 </Suspense>
               }
             />
-            <Route
-              path="/about"
-              element={
-                <Suspense fallback={<Loading/>}>
-                  <AboutUs/>
-                </Suspense>
-              }
-            />
             <Route path="/*" element={<NotFound/>}/>
           </Routes>
         </SiderMenu>
