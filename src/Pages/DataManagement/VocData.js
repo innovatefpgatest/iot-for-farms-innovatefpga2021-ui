@@ -49,6 +49,7 @@ const VocData = () => {
   const {data, loading, error, code} = listVocData ?? {}
   const {data: listData} = data ?? {}
 
+  const [dataSource, setDataSource] = useState(listData)
   const [page, setPage] = useState(1)
 
   useEffect(() => {
@@ -65,6 +66,14 @@ const VocData = () => {
         localStorage.removeItem("iotForFarmsToken")
         dispatch(logout())
         navigate('/login')
+      }
+    } else if (code == API_CODE_SUCCESS){
+      if (listData?.length > 0) {
+        let list = JSON.parse(JSON.stringify(listData))
+        for (const i in list) {
+          list[i]['node_id'] = list[i]['node_id'].toString()
+        }
+        setDataSource(list)
       }
     }
   }, [code])
@@ -106,7 +115,7 @@ const VocData = () => {
   }
 
   const plotConfig = {
-    data: listData?.length > 0 ? listData : [],
+    data: dataSource?.length > 0 ? dataSource : [],
     xField: 'created_at',
     yField: 'value',
     seriesField: 'node_id',
@@ -123,7 +132,7 @@ const VocData = () => {
     <Divider/>
     <Table
       columns={columns}
-      dataSource={listData}
+      dataSource={dataSource}
       loading={loading}
       rowKey="id"
       pagination={{
