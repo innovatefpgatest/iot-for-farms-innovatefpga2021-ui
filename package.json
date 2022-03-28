@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/plots": "1.0.9",
     "@ant-design/icons": "4.6.2",
     "@craco/craco": "^6.4.3",
     "@reduxjs/toolkit": "1.6.0",

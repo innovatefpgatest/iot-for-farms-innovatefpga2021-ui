@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import './index.less';
-import {message, Table} from 'antd';
+import {Divider, message, Table} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {API_CODE_FAILURE, API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode";
@@ -13,6 +13,7 @@ import {
 import {logout} from "../../redux/authentication";
 import axios from "axios";
 import moment from 'moment';
+import {Line} from "@ant-design/plots";
 
 const columns = [
   {
@@ -104,19 +105,38 @@ const SoilMoistureData = () => {
       })
   }
 
-  return (<Table
-    columns={columns}
-    dataSource={listData}
-    loading={loading}
-    rowKey="id"
-    pagination={{
-      total: data?.total || 0,
-      pageSize: data?.page_size || 10,
-      current: page,
-      size: "small",
-      onChange: (currentPage) => getListSoilMoistureData(currentPage),
-    }}
-  />)
+  const plotConfig = {
+    data: listData?.length > 0 ? listData : [],
+    xField: 'created_at',
+    yField: 'value',
+    seriesField: 'node_id',
+    xAxis: {
+      label: {
+        formatter: (v) => moment(v).format("DD/MM/YYYY HH:mm:ss"),
+      },
+    },
+    point: {
+      size: 5,
+    },
+  };
+
+  return (<>
+    <Line {...plotConfig} />
+    <Divider/>
+    <Table
+      columns={columns}
+      dataSource={listData}
+      loading={loading}
+      rowKey="id"
+      pagination={{
+        total: data?.total || 0,
+        pageSize: data?.page_size || 10,
+        current: page,
+        size: "small",
+        onChange: (currentPage) => getListSoilMoistureData(currentPage),
+      }}
+    />
+  </>)
 }
 
 export default SoilMoistureData

@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import './index.less';
-import {message, Table} from 'antd';
+import {message, Table, Divider} from 'antd';
+import {Line} from '@ant-design/plots';
 import {useDispatch, useSelector} from "react-redux";
 import {useNavigate} from "react-router-dom";
 import {API_CODE_FAILURE, API_CODE_SUCCESS, INVALID_TOKEN} from "../../redux/errorCode";
@@ -68,6 +69,21 @@ const LightData = () => {
     }
   }, [code])
 
+  const plotConfig = {
+    data: listData?.length > 0 ? listData : [],
+    xField: 'created_at',
+    yField: 'value',
+    seriesField: 'node_id',
+    xAxis: {
+      label: {
+        formatter: (v) => moment(v).format("DD/MM/YYYY HH:mm:ss"),
+      },
+    },
+    point: {
+      size: 5,
+    },
+  };
+
   const getListLightData = (currentPage) => {
     setPage(currentPage)
     dispatch(getListLightDataStart())
@@ -104,19 +120,23 @@ const LightData = () => {
       })
   }
 
-  return (<Table
-    columns={columns}
-    dataSource={listData}
-    loading={loading}
-    rowKey="id"
-    pagination={{
-      total: data?.total || 0,
-      pageSize: data?.page_size || 10,
-      current: page,
-      size: "small",
-      onChange: (currentPage) => getListLightData(currentPage),
-    }}
-  />)
+  return (<>
+    <Line {...plotConfig} />
+    <Divider/>
+    <Table
+      columns={columns}
+      dataSource={listData}
+      loading={loading}
+      rowKey="id"
+      pagination={{
+        total: data?.total || 0,
+        pageSize: data?.page_size || 10,
+        current: page,
+        size: "small",
+        onChange: (currentPage) => getListLightData(currentPage),
+      }}
+    />
+  </>)
 }
 
 export default LightData
